@@ -9,6 +9,11 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "DeveloperCore.Pusher", "Dev
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{C5E8E6DD-45F1-41CD-9C93-CE1DC6E59CA6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{734B3BC4-0923-4CAA-BF3B-BD091AAA6EBD}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
