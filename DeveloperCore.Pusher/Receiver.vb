@@ -4,12 +4,19 @@ Imports System.Text
 Imports System.Text.Json.Nodes
 Imports System.Threading
 
+''' <summary>
+''' Represents a receiver for a channel.
+''' </summary>
 Public Class Receiver
     Dim _wsClient As ClientWebSocket
     Dim _connected As Boolean = False
     Dim _watchToken As CancellationTokenSource
     Dim _events As New List(Of [Event])
 
+    ''' <summary>
+    ''' Determines whether the client is connected to the server.
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property Connected As Boolean
         Get
             Return _connected
@@ -21,10 +28,18 @@ Public Class Receiver
         Me.Channel = channel
     End Sub
 
+    ''' <summary>
+    ''' Connects to the server.
+    ''' </summary>
+    ''' <returns></returns>
     Public Async Function ConnectAsync() As Task
         Await ConnectAsync(CancellationToken.None)
     End Function
 
+    ''' <summary>
+    ''' Connects to the server.
+    ''' </summary>
+    ''' <param name="token">The cancellation token.</param>
     Public Async Function ConnectAsync(token As CancellationToken) As Task
         If Connected Then Return
         _connected = True
@@ -34,10 +49,17 @@ Public Class Receiver
         Watch(_watchToken.Token)
     End Function
 
+    ''' <summary>
+    ''' Disconnects from the server.
+    ''' </summary>
     Public Async Function DisconnectAsync() As Task
         Await DisconnectAsync(CancellationToken.None)
     End Function
 
+    ''' <summary>
+    ''' Disconnects from the server.
+    ''' </summary>
+    ''' <param name="token">The cancellation token.</param>
     Public Async Function DisconnectAsync(token As CancellationToken) As Task
         If Connected Then
             _watchToken.Cancel()
@@ -72,14 +94,33 @@ Public Class Receiver
         End Try
     End Sub
 
+    ''' <summary>
+    ''' Binds an event to an action.
+    ''' </summary>
+    ''' <param name="event">The event name.</param>
+    ''' <param name="e">The action to perform.</param>
     Public Sub Bind([event] As String, e As Action(Of Notification))
         _events.Add(New [Event]([event], e))
     End Sub
 
+    ''' <summary>
+    ''' Unbinds an event from an action.
+    ''' </summary>
+    ''' <param name="event">The event name.</param>
+    ''' <param name="e">The action to perform.</param>
     Public Sub Unbind([event] As String, e As Action(Of Notification))
         _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
     End Sub
 
+    ''' <summary>
+    ''' The base URL of the server.
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property Url As String
+
+    ''' <summary>
+    ''' The channel to listen to.
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property Channel As String
 End Class
