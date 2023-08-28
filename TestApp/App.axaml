@@ -3,5 +3,9 @@
              x:Class="TestApp.App">
     <Application.Styles>
         <FluentTheme/>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
     </Application.Styles>
 </Application>

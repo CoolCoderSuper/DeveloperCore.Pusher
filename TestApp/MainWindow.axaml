@@ -2,15 +2,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:testApp="clr-namespace:TestApp"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="TestApp.MainWindow"
 		Width="250"
 		Height="300"
+        WindowState="Maximized"
         Title="TestApp">
+	<Window.DataContext>
+		<testApp:MainViewModel/>
+	</Window.DataContext>
 	<Grid RowDefinitions="Auto,Auto,Auto,*">
-		<Button Name="btnSend" Content="Send"/>
-		<Button Name="btnConnect" Content="Connect" Grid.Row="1"/>
-		<Button Name="btnBind" Content="Bind" Grid.Row="2"/>
-		<TextBox Name="txtData" IsReadOnly="True" Grid.Row="3"/>
+		<Button Content="Send" Command="{Binding Send}"/>
+		<Button Content="{Binding ConnectText}" Command="{Binding Connect}" Grid.Row="1"/>
+		<Button Content="{Binding BindText}" Command="{Binding Bind}" Grid.Row="2"/>
+		<TextBox Text="{Binding Data}" IsReadOnly="True" Grid.Row="3"/>
 	</Grid>
 </Window>
