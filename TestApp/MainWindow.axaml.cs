@@ -7,8 +7,8 @@ namespace TestApp;
 
 public partial class MainWindow : Window
 {
-    readonly Sender s = new(@"https://localhost:7166/", "test");
-    readonly Receiver r = new(@"wss://localhost:7166/", "test");
+    readonly Sender s = new(@"http://localhost:7166/", "test");
+    readonly Receiver r = new(@"ws://localhost:7166/", "test");
 
     public MainWindow()
     {

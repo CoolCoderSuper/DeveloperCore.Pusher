@@ -19,7 +19,6 @@ Public Module Program
         Dim app As WebApplication = builder.Build()
         app.UseSwagger()
         app.UseSwaggerUI()
-        app.UseHttpsRedirection()
         app.UseAuthorization()
         app.MapControllers()
         app.UseWebSockets()
@@ -38,6 +37,6 @@ Public Module Program
                                context.Response.StatusCode = HttpStatusCode.BadRequest
                            End If
                        End Function)
-        app.Run("https://localhost:7166")
+        app.Run("http://localhost:7166")
     End Sub
 End Module
