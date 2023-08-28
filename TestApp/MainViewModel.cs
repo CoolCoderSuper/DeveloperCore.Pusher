@@ -55,7 +55,7 @@ public class MainViewModel : INotifyPropertyChanged
     
     public async Task Send()
     {
-        await _s.Send("Nice", new { name = "hello", age = 9 });
+        await _s.SendAsync("Nice", new { name = "hello", age = 9 });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

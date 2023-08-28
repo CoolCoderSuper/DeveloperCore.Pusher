@@ -29,7 +29,7 @@ Public Class Sender
     ''' </summary>
     ''' <param name="event">The event to trigger.</param>
     ''' <param name="data">Any additional data to send.</param>
-    Public Async Function Send([event] As String, data As Object) As Task
+    Public Async Function SendAsync([event] As String, data As Object) As Task
         Dim client As New HttpClient
         Dim content As New StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
         Dim res = Await client.PostAsync(Path.Combine(Url, $"Notification?channel={Channel}&event={[event]}"), content)
