@@ -9,7 +9,7 @@ namespace TestApp;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private readonly Sender _s = new("http://localhost:7166/", "test");
+    private readonly Sender _s = new("http://localhost:7166/");
     private readonly Receiver _r = new("ws://localhost:7166/");
     private bool _bound;
     private string _data = "";
@@ -58,7 +58,7 @@ public class MainViewModel : INotifyPropertyChanged
     
     public async Task Send()
     {
-        await _s.SendAsync("Nice", new { name = "hello", age = 9 });
+        await _s.SendAsync("test", "Nice", new { name = "hello", age = 9 });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
