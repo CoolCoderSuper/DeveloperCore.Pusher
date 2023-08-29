@@ -13,9 +13,9 @@
 		<testApp:MainViewModel/>
 	</Window.DataContext>
 	<Grid RowDefinitions="Auto,Auto,Auto,*">
-		<Button Content="Send" Command="{Binding Send}"/>
-		<Button Content="{Binding ConnectText}" Command="{Binding Connect}" Grid.Row="1"/>
-		<Button Content="{Binding BindText}" Command="{Binding Bind}" Grid.Row="2"/>
+		<Button Content="{Binding ConnectText}" Command="{Binding Connect}" Grid.Row="0"/>
+		<Button Content="{Binding BindText}" Command="{Binding Bind}" Grid.Row="1"/>
+		<Button Content="Send" Command="{Binding Send}" Grid.Row="2"/>
 		<TextBox Text="{Binding Data}" IsReadOnly="True" Grid.Row="3"/>
 	</Grid>
 </Window>

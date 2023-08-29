@@ -5,13 +5,13 @@ Imports System.Text.Json.Nodes
 Imports System.Threading
 
 ''' <summary>
-''' Represents a receiver for a channel.
+''' Receives messages on multiple channels.
 ''' </summary>
 Public Class Receiver
     Dim _wsClient As ClientWebSocket
     Dim _connected As Boolean = False
     Dim _watchToken As CancellationTokenSource
-    Dim _events As New List(Of [Event])
+    Dim _channels As New List(Of Channel)
 
     ''' <summary>
     ''' Determines whether the client is connected to the server.
@@ -23,9 +23,8 @@ Public Class Receiver
         End Get
     End Property
 
-    Public Sub New(url As String, channel As String)
+    Public Sub New(url As String)
         Me.Url = url
-        Me.Channel = channel
     End Sub
 
     ''' <summary>
@@ -72,6 +71,25 @@ Public Class Receiver
         End If
     End Function
 
+    ''' <summary>
+    ''' Subscribes to a channel.
+    ''' </summary>
+    ''' <param name="channel">The channel name.</param>
+    ''' <returns></returns>
+    Public Function Subscribe(channel As String) As Channel
+        Dim ch As New Channel(channel)
+        _channels.Add(ch)
+        Return ch
+    End Function
+    
+    ''' <summary>
+    ''' Unsubscribes from a channel.
+    ''' </summary>
+    ''' <param name="channel">The channel.</param>
+    Public Sub Unsubscribe(channel As Channel)
+        _channels.Remove(channel)
+    End Sub
+    
     Private Async Sub Watch(token As CancellationToken)
         Try
             While _wsClient.State = WebSocketState.Open
@@ -84,43 +102,19 @@ Public Class Receiver
                     Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
                     Dim obj As JsonObject = JsonNode.Parse(data)
                     Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString)
-                    If n.Channel = Channel Then
-                        _events.ForEach(Sub(x) If x.Event = n.Event Then x.Action.Invoke(n))
-                    End If
+                    For Each ch As Channel In _channels.Where(Function(x) x.Name = n.Channel)
+                        ch.MessageReceived(n)
+                    Next
                 End If
             End While
         Catch ex As OperationCanceledException
 
         End Try
     End Sub
-
-    ''' <summary>
-    ''' Binds an event to an action.
-    ''' </summary>
-    ''' <param name="event">The event name.</param>
-    ''' <param name="e">The action to perform.</param>
-    Public Sub Bind([event] As String, e As Action(Of Notification))
-        _events.Add(New [Event]([event], e))
-    End Sub
-
-    ''' <summary>
-    ''' Unbinds an event from an action.
-    ''' </summary>
-    ''' <param name="event">The event name.</param>
-    ''' <param name="e">The action to perform.</param>
-    Public Sub Unbind([event] As String, e As Action(Of Notification))
-        _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
-    End Sub
-
+    
     ''' <summary>
     ''' The base URL of the server.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property Url As String
-
-    ''' <summary>
-    ''' The channel to listen to.
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property Channel As String
 End Class

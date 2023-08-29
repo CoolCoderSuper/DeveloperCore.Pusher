@@ -9,10 +9,11 @@ namespace TestApp;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private readonly Sender _s = new(@"http://localhost:7166/", "test");
-    private readonly Receiver _r = new(@"ws://localhost:7166/", "test");
+    private readonly Sender _s = new("http://localhost:7166/", "test");
+    private readonly Receiver _r = new("ws://localhost:7166/");
     private bool _bound;
     private string _data = "";
+    private Channel _channel;
 
     public string Data
     {
@@ -27,12 +28,14 @@ public class MainViewModel : INotifyPropertyChanged
     {
         if (_r.Connected)
         {
+            _r.Unsubscribe(_channel);
             await _r.DisconnectAsync();
             OnPropertyChanged(nameof(ConnectText));
         }
         else
         {
             await _r.ConnectAsync();
+            _channel = _r.Subscribe("test");
             OnPropertyChanged(nameof(ConnectText));
         }
     }
@@ -42,12 +45,12 @@ public class MainViewModel : INotifyPropertyChanged
         Action<Notification> action = (data) => Data += $"{data.Data}{Environment.NewLine}";
         if (_bound)
         {
-            _r.Unbind("Nice", action);
+            _channel.Unbind("Nice", action);
             _bound = false;
             OnPropertyChanged(nameof(BindText));
         }else
         {
-            _r.Bind("Nice", action);            
+            _channel.Bind("Nice", action);            
             _bound = true;
             OnPropertyChanged(nameof(BindText));
         }
