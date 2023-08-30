@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using DeveloperCore.Pusher;
 
@@ -13,8 +14,7 @@ namespace TestApp;
 public class MainViewModel : INotifyPropertyChanged
 {
     private Sender? _sender;
-    private Receiver? _receiver;
-    private Channel? _channel;
+    private Listener? _listener;
     private string _host = "localhost:7166";
     private string _channelName = "test";
     private string _event = "Nice";
@@ -51,28 +51,23 @@ public class MainViewModel : INotifyPropertyChanged
         set => SetField(ref _data, value);
     }
 
-    public string ConnectText => _receiver is { Connected: true } ? "Disconnect" : "Connect";
+    public string ConnectText => _listener is { Connected: true } ? "Disconnect" : "Connect";
     
-    public bool Connected => _receiver is { Connected: true };
+    public bool Connected => _listener is { Connected: true };
     
     public async Task Connect()
     {
-        Action<Notification> action = (data) => Notifications.Insert(0, data);
         if (Connected)
         {
-            _channel?.Unbind("Nice", action);
-            _receiver?.Unsubscribe(_channel);
-            await _receiver?.DisconnectAsync();
+            await _listener?.DisconnectAsync(CancellationToken.None);
             OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
         }
         else
         {
             _sender = new Sender($"http://{Host}/");
-            _receiver = new Receiver($"ws://{Host}/");
-            await _receiver.ConnectAsync();
-            _channel = _receiver.Subscribe("test");
-            _channel.Bind("Nice", action);            
+            _listener = new Listener($"ws://{Host}/", (data) => Notifications.Insert(0, data));
+            await _listener.ConnectAsync(CancellationToken.None);
             OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
         }
