@@ -101,7 +101,7 @@ Public Class Receiver
                 Else
                     Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
                     Dim obj As JsonObject = JsonNode.Parse(data)
-                    Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString)
+                    Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
                     For Each ch As Channel In _channels.Where(Function(x) x.Name = n.Channel)
                         ch.MessageReceived(n)
                     Next

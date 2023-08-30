@@ -2,10 +2,11 @@
 ''' A notification received from the server.
 ''' </summary>
 Public Class Notification
-    Public Sub New(channel As String, [event] As String, data As String)
+    Public Sub New(channel As String, [event] As String, data As String, [date] As Date)
         Me.Channel = channel
         Me.Event = [event]
         Me.Data = data
+        Me.Date = [date]
     End Sub
 
     ''' <summary>
@@ -25,4 +26,6 @@ Public Class Notification
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property Data As String
+    
+    Public ReadOnly Property [Date] As Date
 End Class

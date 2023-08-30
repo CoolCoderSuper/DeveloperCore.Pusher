@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DeveloperCore.Pusher;
 
@@ -9,56 +12,80 @@ namespace TestApp;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private readonly Sender _s = new("http://localhost:7166/");
-    private readonly Receiver _r = new("ws://localhost:7166/");
-    private bool _bound;
-    private string _data = "";
-    private Channel _channel;
+    private Sender? _sender;
+    private Receiver? _receiver;
+    private Channel? _channel;
+    private string _host = "localhost:7166";
+    private string _channelName = "test";
+    private string _event = "Nice";
+    private string _data = """
+                           {
+                            "name":"hello",
+                            "age":9
+                           }
+                           """;
+    
+    public ObservableCollection<Notification> Notifications { get; set; } = new();
 
+    public string Host
+    {
+        get => _host;
+        set => SetField(ref _host, value);
+    }
+
+    public string ChannelName
+    {
+        get => _channelName;
+        set => SetField(ref _channelName, value);
+    }
+    
+    public string Event
+    {
+        get => _event;
+        set => SetField(ref _event, value);
+    }
+    
     public string Data
     {
         get => _data;
         set => SetField(ref _data, value);
     }
 
-    public string ConnectText => _r.Connected ? "Disconnect" : "Connect";
-    public string BindText => _bound ? "Unbind" : "Bind";
+    public string ConnectText => _receiver is { Connected: true } ? "Disconnect" : "Connect";
+    
+    public bool Connected => _receiver is { Connected: true };
     
     public async Task Connect()
     {
-        if (_r.Connected)
+        Action<Notification> action = (data) => Notifications.Insert(0, data);
+        if (Connected)
         {
-            _r.Unsubscribe(_channel);
-            await _r.DisconnectAsync();
+            _channel?.Unbind("Nice", action);
+            _receiver?.Unsubscribe(_channel);
+            await _receiver?.DisconnectAsync();
+            OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
         }
         else
         {
-            await _r.ConnectAsync();
-            _channel = _r.Subscribe("test");
+            _sender = new Sender($"http://{Host}/");
+            _receiver = new Receiver($"ws://{Host}/");
+            await _receiver.ConnectAsync();
+            _channel = _receiver.Subscribe("test");
+            _channel.Bind("Nice", action);            
+            OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
         }
     }
-    
-    public void Bind()
-    {
-        Action<Notification> action = (data) => Data += $"{data.Data}{Environment.NewLine}";
-        if (_bound)
-        {
-            _channel.Unbind("Nice", action);
-            _bound = false;
-            OnPropertyChanged(nameof(BindText));
-        }else
-        {
-            _channel.Bind("Nice", action);            
-            _bound = true;
-            OnPropertyChanged(nameof(BindText));
-        }
-    }
-    
+
     public async Task Send()
     {
-        await _s.SendAsync("test", "Nice", new { name = "hello", age = 9 });
+        await _sender.SendAsync(_channelName, _event, JsonSerializer.Deserialize<ExpandoObject>(_data));
+    }
+    
+    public void Clear()
+    {
+        Notifications.Clear();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
