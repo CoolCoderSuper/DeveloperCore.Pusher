@@ -1,31 +1,35 @@
-﻿Imports System.IO
-Imports System.Net.WebSockets
-Imports System.Text
-Imports System.Text.Json.Nodes
-Imports System.Threading
+﻿Imports System.Threading
 
 ''' <summary>
 ''' Receives messages on multiple channels.
 ''' </summary>
 Public Class Receiver
-    Dim _wsClient As ClientWebSocket
-    Dim _connected As Boolean = False
-    Dim _watchToken As CancellationTokenSource
+    Private ReadOnly _listener As Listener
     Dim _channels As New List(Of Channel)
 
+    Public Sub New(url As String)
+        _listener = New Listener(url, AddressOf Trigger)
+    End Sub
+    
     ''' <summary>
     ''' Determines whether the client is connected to the server.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property Connected As Boolean
         Get
-            Return _connected
+            Return _listener.Connected
         End Get
     End Property
-
-    Public Sub New(url As String)
-        Me.Url = url
-    End Sub
+    
+    ''' <summary>
+    ''' The base URL of the server.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Url As String
+        Get
+            Return _listener.Url
+        End Get
+    End Property
 
     ''' <summary>
     ''' Connects to the server.
@@ -40,12 +44,7 @@ Public Class Receiver
     ''' </summary>
     ''' <param name="token">The cancellation token.</param>
     Public Async Function ConnectAsync(token As CancellationToken) As Task
-        If Connected Then Return
-        _connected = True
-        _wsClient = New ClientWebSocket
-        Await _wsClient.ConnectAsync(New Uri(Path.Combine(Url, "ws")), token)
-        _watchToken = New CancellationTokenSource
-        Watch(_watchToken.Token)
+        Await _listener.ConnectAsync(token)
     End Function
 
     ''' <summary>
@@ -60,15 +59,7 @@ Public Class Receiver
     ''' </summary>
     ''' <param name="token">The cancellation token.</param>
     Public Async Function DisconnectAsync(token As CancellationToken) As Task
-        If Connected Then
-            _watchToken.Cancel()
-            If _wsClient.State = WebSocketState.Aborted Then
-                _wsClient.Abort()
-            Else
-                Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
-            End If
-            _connected = False
-        End If
+        Await _listener.DisconnectAsync(token)
     End Function
 
     ''' <summary>
@@ -86,35 +77,14 @@ Public Class Receiver
     ''' Unsubscribes from a channel.
     ''' </summary>
     ''' <param name="channel">The channel.</param>
+    ''' <returns></returns>
     Public Sub Unsubscribe(channel As Channel)
         _channels.Remove(channel)
     End Sub
     
-    Private Async Sub Watch(token As CancellationToken)
-        Try
-            While _wsClient.State = WebSocketState.Open
-                If _watchToken.IsCancellationRequested Then Return
-                Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {})
-                Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token)
-                If result.MessageType = WebSocketMessageType.Close Then
-                    Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
-                Else
-                    Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
-                    Dim obj As JsonObject = JsonNode.Parse(data)
-                    Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
-                    For Each ch As Channel In _channels.Where(Function(x) x.Name = n.Channel)
-                        ch.MessageReceived(n)
-                    Next
-                End If
-            End While
-        Catch ex As OperationCanceledException
-
-        End Try
+    Private Sub Trigger(n As Notification)
+        For Each ch As Channel In _channels.Where(Function(x) x.Name = n.Channel)
+            ch.MessageReceived(n)
+        Next
     End Sub
-    
-    ''' <summary>
-    ''' The base URL of the server.
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property Url As String
 End Class
