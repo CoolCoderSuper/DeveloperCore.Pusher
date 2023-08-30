@@ -20,17 +20,19 @@
             <Button Grid.Row="2" Grid.Column="0" Content="Send" Command="{Binding Send}" />
             <Button Grid.Row="2" Grid.Column="1" Content="Clear" HorizontalAlignment="Right" Command="{Binding Clear}" />
         </Grid>
-        <ItemsRepeater Grid.Row="2" ItemsSource="{Binding Notifications}">
-            <ItemsRepeater.ItemTemplate>
-                <DataTemplate>
-                    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,Auto">
-                        <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Channel}"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Event}"/>
-                        <TextBox Grid.Row="0" Grid.Column="2" Watermark="Time" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Date}"/>
-                        <TextBox Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" AcceptsReturn="True" Watermark="Data" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Data}" />
-                    </Grid>
-                </DataTemplate>
-            </ItemsRepeater.ItemTemplate>
-        </ItemsRepeater>
+        <ScrollViewer Grid.Row="2">
+            <ItemsRepeater ItemsSource="{Binding Notifications}">
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,Auto" Margin="10">
+                            <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Channel}"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Event}"/>
+                            <TextBox Grid.Row="0" Grid.Column="2" Watermark="Time" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Date}"/>
+                            <TextBox Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" AcceptsReturn="True" Watermark="Data" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Data}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
     </Grid>
 </UserControl>
