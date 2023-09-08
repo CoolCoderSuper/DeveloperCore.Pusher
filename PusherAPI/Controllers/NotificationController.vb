@@ -2,7 +2,6 @@
 Imports Microsoft.Extensions.Logging
 
 Namespace Controllers
-
     <ApiController>
     <Route("[controller]")>
     Public Class NotificationController
@@ -17,10 +16,12 @@ Namespace Controllers
         End Sub
 
         <HttpPost("")>
-        Public Sub Post(channel As String, [event] As String, <FromBody> data As Object)
-            _service.Send(channel, [event], data)
-        End Sub
-
+        Public Function Post(channel As String, [event] As String, key As String, <FromBody> data As Object) As ActionResult
+            If _service.Send(channel, [event], key, data) Then
+                Return Ok()
+            Else 
+                Return Unauthorized()
+            End If
+        End Function
     End Class
-
 End Namespace

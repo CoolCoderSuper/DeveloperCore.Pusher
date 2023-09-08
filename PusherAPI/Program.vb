@@ -23,16 +23,20 @@ Public Module Program
         app.Map("/ws", 
                 Async Function(context As HttpContext)
                     If context.WebSockets.IsWebSocketRequest Then
-                        Dim webSocket = Await context.WebSockets.AcceptWebSocketAsync()
-                        Dim notificationHandler = Async Sub(notification)
-                            Dim data As Byte() = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Of Notification)(notification))
-                            Await webSocket.SendAsync(data, WebSocketMessageType.Text, True, CancellationToken.None)
-                        End Sub
-                        AddHandler NotificationService.NotificationReceived, notificationHandler
-                        While webSocket.State = WebSocketState.Open
-                            Await Task.Delay(1000)
-                        End While
-                        RemoveHandler NotificationService.NotificationReceived, notificationHandler
+                        If context.Request.Query.ContainsKey("key") AndAlso context.Request.Query.Item("key") = builder.Configuration.Item("key") Then
+                            Dim webSocket = Await context.WebSockets.AcceptWebSocketAsync()
+                            Dim notificationHandler = Async Sub(notification)
+                                Dim data As Byte() = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Of Notification)(notification))
+                                Await webSocket.SendAsync(data, WebSocketMessageType.Text, True, CancellationToken.None)
+                            End Sub
+                            AddHandler NotificationService.NotificationReceived, notificationHandler
+                            While webSocket.State = WebSocketState.Open
+                                Await Task.Delay(1000)
+                            End While
+                            RemoveHandler NotificationService.NotificationReceived, notificationHandler
+                        Else 
+                            context.Response.StatusCode = HttpStatusCode.Unauthorized
+                        End If
                     Else
                         context.Response.StatusCode = HttpStatusCode.BadRequest
                     End If

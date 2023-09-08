@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using DeveloperCore.Pusher;
 
 namespace TestApp;
@@ -55,7 +53,7 @@ public class MainViewModel : INotifyPropertyChanged
     
     public bool Connected => _listener is { Connected: true };
     
-    public async Task Connect()
+    public async void Connect()
     {
         if (Connected)
         {
@@ -65,15 +63,15 @@ public class MainViewModel : INotifyPropertyChanged
         }
         else
         {
-            _sender = new Sender($"http://{Host}/");
-            _listener = new Listener($"ws://{Host}/", (data) => Notifications.Insert(0, data));
+            _sender = new Sender($"http://{Host}/", "key");
+            _listener = new Listener($"ws://{Host}/", "key", (data) => Notifications.Insert(0, data));
             await _listener.ConnectAsync(CancellationToken.None);
             OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
         }
     }
 
-    public async Task Send()
+    public async void Send()
     {
         await _sender.SendAsync(_channelName, _event, JsonSerializer.Deserialize<ExpandoObject>(_data));
     }

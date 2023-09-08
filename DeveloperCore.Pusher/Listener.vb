@@ -10,13 +10,15 @@ Public Class Listener
     Dim _watchToken As CancellationTokenSource
     Dim _wsClient As ClientWebSocket
 
-    Public Sub New(url As String, trigger As Action(Of Notification))
+    Public Sub New(url As String, key As String, trigger As Action(Of Notification))
         _trigger = trigger
         Me.Url = url
+        Me.Key = key
     End Sub
     
     Public ReadOnly Property Url As String
-    
+    Public ReadOnly Property Key As String
+
     Public ReadOnly Property Connected As Boolean
         Get
             Return _connected
@@ -27,7 +29,7 @@ Public Class Listener
         If Connected Then Return
         _connected = True
         _wsClient = New ClientWebSocket
-        Await _wsClient.ConnectAsync(New Uri(Path.Combine(Url, "ws")), token)
+        Await _wsClient.ConnectAsync(New Uri(Path.Combine(Url, $"ws?key={Key}")), token)
         _watchToken = New CancellationTokenSource
         Watch(_watchToken.Token)
     End Function

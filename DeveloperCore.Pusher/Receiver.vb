@@ -7,8 +7,8 @@ Public Class Receiver
     Private ReadOnly _listener As Listener
     Dim _channels As New List(Of Channel)
 
-    Public Sub New(url As String)
-        _listener = New Listener(url, AddressOf Trigger)
+    Public Sub New(url As String, key As String)
+        _listener = New Listener(url, key, AddressOf Trigger)
     End Sub
     
     ''' <summary>
@@ -28,6 +28,16 @@ Public Class Receiver
     Public ReadOnly Property Url As String
         Get
             Return _listener.Url
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' The key to use for authentication.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Key As String
+        Get
+            Return _listener.Key
         End Get
     End Property
 
