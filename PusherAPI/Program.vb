@@ -24,12 +24,15 @@ Public Module Program
                 Async Function(context As HttpContext)
                     If context.WebSockets.IsWebSocketRequest Then
                         Dim webSocket = Await context.WebSockets.AcceptWebSocketAsync()
-                        AddHandler NotificationService.NotificationReceived, Async Sub(notification)
-                            Dim data As Byte() = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(notification))
+                        Dim notificationHandler = Async Sub(notification)
+                            Dim data As Byte() = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Of Notification)(notification))
                             Await webSocket.SendAsync(data, WebSocketMessageType.Text, True, CancellationToken.None)
                         End Sub
-                        While True
+                        AddHandler NotificationService.NotificationReceived, notificationHandler
+                        While webSocket.State = WebSocketState.Open
+                            Await Task.Delay(1000)
                         End While
+                        RemoveHandler NotificationService.NotificationReceived, notificationHandler
                     Else
                         context.Response.StatusCode = HttpStatusCode.BadRequest
                     End If
