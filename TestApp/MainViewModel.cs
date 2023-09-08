@@ -14,6 +14,7 @@ public class MainViewModel : INotifyPropertyChanged
     private Sender? _sender;
     private Listener? _listener;
     private string _host = "localhost:7166";
+    private string _key = "key";
     private string _channelName = "test";
     private string _event = "Nice";
     private string _data = """
@@ -22,13 +23,20 @@ public class MainViewModel : INotifyPropertyChanged
                             "age":9
                            }
                            """;
-    
+
+
     public ObservableCollection<Notification> Notifications { get; set; } = new();
 
     public string Host
     {
         get => _host;
         set => SetField(ref _host, value);
+    }
+
+    public string Key
+    {
+        get => _key;
+        set => SetField(ref _key, value);
     }
 
     public string ChannelName
@@ -63,8 +71,8 @@ public class MainViewModel : INotifyPropertyChanged
         }
         else
         {
-            _sender = new Sender($"http://{Host}/", "key");
-            _listener = new Listener($"ws://{Host}/", "key", (data) => Notifications.Insert(0, data));
+            _sender = new Sender($"http://{Host}/", _key);
+            _listener = new Listener($"ws://{Host}/", _key, (data) => Notifications.Insert(0, data));
             await _listener.ConnectAsync(CancellationToken.None);
             OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));
