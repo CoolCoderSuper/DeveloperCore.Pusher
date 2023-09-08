@@ -12,4 +12,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    private void TopLevel_OnClosed(object? sender, EventArgs e)
+    {
+        var view = this.FindControl<MainView>("MainView");
+        view.Close();
+    }
 }

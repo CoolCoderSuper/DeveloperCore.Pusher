@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
@@ -11,20 +13,28 @@ namespace TestApp;
 
 public class MainViewModel : INotifyPropertyChanged
 {
+    private static readonly string _dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeveloperCore", "Pusher");
+    private static readonly string _file = Path.Combine(_dir, "config.json");
     private Sender? _sender;
     private Listener? _listener;
-    private string _host = "localhost:7166";
-    private string _key = "key";
-    private string _channelName = "test";
-    private string _event = "Nice";
-    private string _data = """
-                           {
-                            "name":"hello",
-                            "age":9
-                           }
-                           """;
-
-
+    private string _host;
+    private string _key;
+    private string _channelName;
+    private string _event;
+    private string _data;
+    
+    public MainViewModel()
+    {
+        if (!Directory.Exists(_dir))
+            Directory.CreateDirectory(_dir);
+        var config = File.Exists(_file) ? JsonSerializer.Deserialize<Config>(File.ReadAllText(_file)) : new Config();
+        Host = config.Host;
+        Key = config.Key;
+        ChannelName = config.ChannelName;
+        Event = config.Event;
+        Data = config.Data;
+    }
+    
     public ObservableCollection<Notification> Notifications { get; set; } = new();
 
     public string Host
@@ -87,6 +97,19 @@ public class MainViewModel : INotifyPropertyChanged
     public void Clear()
     {
         Notifications.Clear();
+    }
+
+    public void Close()
+    {
+        var config = new Config
+        {
+            Host = Host,
+            Key = Key,
+            ChannelName = ChannelName,
+            Event = Event,
+            Data = Data
+        };
+        File.WriteAllText(_file, JsonSerializer.Serialize(config));
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

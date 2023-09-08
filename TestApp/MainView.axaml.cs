@@ -9,5 +9,9 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
     }
-    
+
+    public void Close()
+    {
+        ((MainViewModel)DataContext).Close();        
+    }
 }

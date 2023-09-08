@@ -8,6 +8,6 @@
 		Width="250"
 		Height="300"
         WindowState="Maximized"
-        Title="TestApp">
-	<testApp:MainView/>
+        Title="TestApp" Closed="TopLevel_OnClosed">
+	<testApp:MainView Name="MainView"/>
 </Window>
