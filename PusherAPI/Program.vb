@@ -41,6 +41,10 @@ Public Module Program
                         context.Response.StatusCode = HttpStatusCode.BadRequest
                     End If
                 End Function)
+#If DEBUG Then
         app.Run("http://localhost:7166")
+#Else
+        app.Run()
+#End If
     End Sub
 End Module
