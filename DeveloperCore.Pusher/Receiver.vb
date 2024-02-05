@@ -7,8 +7,8 @@ Public Class Receiver
     Private ReadOnly _listener As Listener
     Dim _channels As New List(Of Channel)
 
-    Public Sub New(url As String, key As String)
-        _listener = New Listener(url, key, AddressOf Trigger)
+    Public Sub New(scheme As String, host As String, port As Integer, key As String)
+        _listener = New Listener(scheme, host, port, key, AddressOf Trigger)
     End Sub
     
     ''' <summary>
