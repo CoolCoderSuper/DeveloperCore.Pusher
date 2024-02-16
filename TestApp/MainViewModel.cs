@@ -82,7 +82,7 @@ public class MainViewModel : INotifyPropertyChanged
         else
         {
             _sender = new Sender($"http://{Host}/", _key);
-            _listener = new Listener("ws", Host, int.Parse(Host.Split(':')[1]), _key, (data) => Notifications.Insert(0, data));
+            _listener = new Listener(new UriBuilder("ws", Host, int.Parse(Host.Split(':')[1])).Uri, _key, (data) => Notifications.Insert(0, data));
             await _listener.ConnectAsync(CancellationToken.None);
             OnPropertyChanged(nameof(Connected));
             OnPropertyChanged(nameof(ConnectText));

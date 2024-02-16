@@ -7,8 +7,8 @@ Public Class Receiver
     Private ReadOnly _listener As Listener
     Dim _channels As New List(Of Channel)
 
-    Public Sub New(scheme As String, host As String, port As Integer, key As String)
-        _listener = New Listener(scheme, host, port, key, AddressOf Trigger)
+    Public Sub New(uri As Uri, key As String)
+        _listener = New Listener(uri, key, AddressOf Trigger)
     End Sub
     
     ''' <summary>
@@ -25,7 +25,7 @@ Public Class Receiver
     ''' The base URL of the server.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property Url As String
+    Public ReadOnly Property Url As Uri
         Get
             Return _listener.Url
         End Get
