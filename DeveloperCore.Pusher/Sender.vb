@@ -7,8 +7,8 @@ Imports System.Text.Json
 ''' Sends a notification to the server.
 ''' </summary>
 Public Class Sender
-    Public Sub New(url As String, key As String)
-        Me.Url = url
+    Public Sub New(uri As Uri, key As String)
+        Url = uri
         Me.Key = key
     End Sub
 
@@ -16,7 +16,7 @@ Public Class Sender
     ''' The base url of the server.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property Url As String
+    Public ReadOnly Property Url As Uri
 
     ''' <summary>
     ''' The key to use for authentication.
@@ -33,7 +33,9 @@ Public Class Sender
     Public Async Function SendAsync(channel As String, [event] As String, data As Object) As Task
         Using client As New HttpClient
             Dim content As New StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
-            Dim res = Await client.PostAsync(Path.Combine(Url, $"Notification?channel={channel}&event={[event]}&key={Key}"), content)
+            Dim builder As New UriBuilder(Url)
+            builder.Path = $"Notification?channel={channel}&event={[event]}&key={Key}"
+            Dim res = Await client.PostAsync(builder.Uri, content)
             If res.StatusCode <> Net.HttpStatusCode.OK Then
                 Throw New Exception($"Failed to send notification: {res.StatusCode}")
             End If
