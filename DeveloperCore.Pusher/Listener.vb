@@ -28,7 +28,10 @@ Public Class Listener
         If Connected Then Return
         _connected = True
         _wsClient = New ClientWebSocket
-        Await _wsClient.ConnectAsync(Url, token)
+        Dim uri As New UriBuilder(Url)
+        uri.Path = "ws"
+        uri.Query = $"key={Key}"
+        Await _wsClient.ConnectAsync(uri.Uri, token)
         _watchToken = New CancellationTokenSource
         Watch(_watchToken.Token)
     End Function

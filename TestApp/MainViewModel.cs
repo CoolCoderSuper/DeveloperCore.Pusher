@@ -18,6 +18,7 @@ public class MainViewModel : INotifyPropertyChanged
     private Sender? _sender;
     private Listener? _listener;
     private string _host;
+    private int _port;
     private string _key;
     private string _channelName;
     private string _event;
@@ -29,6 +30,7 @@ public class MainViewModel : INotifyPropertyChanged
             Directory.CreateDirectory(_dir);
         var config = File.Exists(_file) ? JsonSerializer.Deserialize<Config>(File.ReadAllText(_file)) : new Config();
         Host = config.Host;
+        Port = config.Port;
         Key = config.Key;
         ChannelName = config.ChannelName;
         Event = config.Event;
@@ -41,6 +43,12 @@ public class MainViewModel : INotifyPropertyChanged
     {
         get => _host;
         set => SetField(ref _host, value);
+    }
+    
+    public int Port
+    {
+        get => _port;
+        set => SetField(ref _port, value);
     }
 
     public string Key
@@ -81,7 +89,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
         else
         {
-            var builder = new UriBuilder("http", Host, int.Parse(Host.Split(':')[1]));
+            var builder = new UriBuilder("http", Host, Port);
             _sender = new Sender(builder.Uri, _key);
             builder.Scheme = "ws";
             _listener = new Listener(builder.Uri, _key, (data) => Notifications.Insert(0, data));

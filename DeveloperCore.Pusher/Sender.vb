@@ -34,7 +34,8 @@ Public Class Sender
         Using client As New HttpClient
             Dim content As New StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
             Dim builder As New UriBuilder(Url)
-            builder.Path = $"Notification?channel={channel}&event={[event]}&key={Key}"
+            builder.Path = "Notification"
+            builder.Query = $"channel={channel}&event={[event]}&key={Key}"
             Dim res = Await client.PostAsync(builder.Uri, content)
             If res.StatusCode <> Net.HttpStatusCode.OK Then
                 Throw New Exception($"Failed to send notification: {res.StatusCode}")
