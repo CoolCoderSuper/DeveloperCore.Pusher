@@ -26,6 +26,6 @@ Public Class Notification
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property Data As String
-    
+
     Public ReadOnly Property [Date] As Date
 End Class
