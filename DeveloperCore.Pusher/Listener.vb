@@ -23,7 +23,7 @@ Public Class Listener
             Return _connected
         End Get
     End Property
-    
+
     Public Async Function ConnectAsync(token As CancellationToken) As Task
         If Connected Then Return
         _connected = True
@@ -35,7 +35,7 @@ Public Class Listener
         _watchToken = New CancellationTokenSource
         Watch(_watchToken.Token)
     End Function
-    
+
     Public Async Function DisconnectAsync(token As CancellationToken) As Task
         If Connected Then
             _watchToken.Cancel()
@@ -47,7 +47,7 @@ Public Class Listener
             _connected = False
         End If
     End Function
-    
+
     Private Async Sub Watch(token As CancellationToken)
         Try
             While _wsClient.State = WebSocketState.Open
