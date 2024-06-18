@@ -1,5 +1,5 @@
 <Project>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(SolutionDir)\..\BuildProcess\PreBuildEvents.bat&quot; &quot;$(TargetPath)&quot;  &quot;$(TargetFileName)&quot;  &quot;$(TargetDir)&quot;  &quot;$(TargetName)&quot;" />
+    <Exec Command="PreBuildEvents &quot;$(TargetPath)&quot;  &quot;$(TargetFileName)&quot;  &quot;$(TargetDir)&quot;  &quot;$(TargetName)&quot;" />
   </Target>
 </Project>
