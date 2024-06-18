@@ -7,7 +7,7 @@ Public Class Channel
     Public Sub New(name As String)
         Me.Name = name
     End Sub
-    
+
     ''' <summary>
     ''' Binds an event to an action.
     ''' </summary>
@@ -25,11 +25,11 @@ Public Class Channel
     Public Sub Unbind([event] As String, e As Action(Of Notification))
         _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
     End Sub
-    
+
     Public Sub UnbindAll()
         _events.Clear()
     End Sub
-    
+
     Friend Sub MessageReceived(n As Notification)
         _events.ForEach(Sub(x) If x.Event = n.Event Then x.Action.Invoke(n))
     End Sub
