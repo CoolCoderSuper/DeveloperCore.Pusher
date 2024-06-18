@@ -7,12 +7,13 @@ Imports Microsoft.AspNetCore.Builder
 Imports Microsoft.AspNetCore.Hosting
 Imports Microsoft.AspNetCore.Http
 Imports Microsoft.Extensions.DependencyInjection
+Imports Sentry
 Imports Sentry.AspNetCore
 Imports Sentry.Profiling
 
 Public Module Program
 
-    Private sub ConfigureSentry(options As SentryAspNetCoreOptions)
+    Private Sub ConfigureSentry(options As SentryAspNetCoreOptions)
         With options
             .Dsn = "https://e0a63dab8d48bf980091644da3425f5c@o4507391117492224.ingest.us.sentry.io/4507414003056640"
             .Debug = True
