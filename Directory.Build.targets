@@ -1,5 +1,0 @@
-<Project>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="PreBuildEvents &quot;$(TargetPath)&quot;  &quot;$(TargetFileName)&quot;  &quot;$(TargetDir)&quot;  &quot;$(TargetName)&quot;" />
-  </Target>
-</Project>
