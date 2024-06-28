@@ -1,42 +1,66 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:testApp="clr-namespace:TestApp"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="TestApp.MainView">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:testApp="clr-namespace:TestApp"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TestApp.MainView">
     <UserControl.DataContext>
-        <testApp:MainViewModel/>
+        <testApp:MainViewModel />
     </UserControl.DataContext>
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,*">
         <StackPanel Grid.Row="0">
             <Grid ColumnDefinitions="*,*,400">
-                <TextBox Watermark="Host" UseFloatingWatermark="True" Text="{Binding Host}"/>
-                <TextBox Grid.Column="1" Watermark="Port" UseFloatingWatermark="True" Text="{Binding Port}"/>
-                <TextBox Grid.Column="2" Watermark="Key" UseFloatingWatermark="True" Text="{Binding Key}"/>
+                <TextBox Watermark="Host" UseFloatingWatermark="True" Text="{Binding Host}" />
+                <TextBox Grid.Column="1" Watermark="Port" UseFloatingWatermark="True" Text="{Binding Port}" />
+                <TextBox Grid.Column="2" Watermark="Key" UseFloatingWatermark="True" Text="{Binding Key}" />
             </Grid>
-            <Button Classes="wide" Content="{Binding ConnectText}" Command="{Binding Connect}"/>
+            <Button Classes="wide" Content="{Binding ConnectText}" Command="{Binding Connect}" />
         </StackPanel>
-        <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,*" IsEnabled="{Binding Connected}">
-            <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel" UseFloatingWatermark="True" Text="{Binding ChannelName}"/>
-            <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event" UseFloatingWatermark="True" Text="{Binding Event}"/>
-            <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" AcceptsReturn="True" Watermark="Data" UseFloatingWatermark="True" Text="{Binding Data}" />
-            <Button Grid.Row="2" Grid.Column="0" Content="Send" Command="{Binding Send}" />
-            <Button Grid.Row="2" Grid.Column="1" Content="Clear" HorizontalAlignment="Right" Command="{Binding Clear}" />
-        </Grid>
-        <ScrollViewer Grid.Row="2">
-            <ItemsRepeater ItemsSource="{Binding Notifications}">
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate>
-                        <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,Auto" Margin="10">
-                            <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Channel}"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Event}"/>
-                            <TextBox Grid.Row="0" Grid.Column="2" Watermark="Time" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Date}"/>
-                            <TextBox Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" AcceptsReturn="True" Watermark="Data" UseFloatingWatermark="True" IsReadOnly="True" Text="{Binding Data}" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
-        </ScrollViewer>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Console">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,*"
+                          IsEnabled="{Binding Connected}">
+                        <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel" UseFloatingWatermark="True"
+                                 Text="{Binding ChannelName}" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event" UseFloatingWatermark="True"
+                                 Text="{Binding Event}" />
+                        <TextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" AcceptsReturn="True" Watermark="Data"
+                                 UseFloatingWatermark="True" Text="{Binding Data}" />
+                        <Button Grid.Row="2" Grid.Column="0" Content="Send" Command="{Binding Send}" />
+                        <Button Grid.Row="2" Grid.Column="1" Content="Clear" HorizontalAlignment="Right"
+                                Command="{Binding Clear}" />
+                    </Grid>
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsRepeater ItemsSource="{Binding Notifications}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,Auto" Margin="10">
+                                        <TextBox Grid.Row="0" Grid.Column="0" Watermark="Channel"
+                                                 UseFloatingWatermark="True"
+                                                 IsReadOnly="True" Text="{Binding Channel}" />
+                                        <TextBox Grid.Row="0" Grid.Column="1" Watermark="Event"
+                                                 UseFloatingWatermark="True"
+                                                 IsReadOnly="True" Text="{Binding Event}" />
+                                        <TextBox Grid.Row="0" Grid.Column="2" Watermark="Time"
+                                                 UseFloatingWatermark="True"
+                                                 IsReadOnly="True" Text="{Binding Date}" />
+                                        <TextBox Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" AcceptsReturn="True"
+                                                 Watermark="Data" UseFloatingWatermark="True" IsReadOnly="True"
+                                                 Text="{Binding Data}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Stress Testing">
+                <Grid>
+                    <Button Classes="wide" Content="Test" Command="{Binding Test}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

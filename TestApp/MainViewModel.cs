@@ -37,7 +37,7 @@ public class MainViewModel : INotifyPropertyChanged
         Data = config.Data;
     }
     
-    public ObservableCollection<Notification> Notifications { get; set; } = new();
+    public ObservableCollection<Notification> Notifications { get; set; } = [];
 
     public string Host
     {
@@ -134,5 +134,10 @@ public class MainViewModel : INotifyPropertyChanged
         if (EqualityComparer<T>.Default.Equals(field, value)) return;
         field = value;
         OnPropertyChanged(propertyName);
+    }
+
+    public void Test()
+    {
+        
     }
 }
