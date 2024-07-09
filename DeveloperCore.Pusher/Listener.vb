@@ -52,15 +52,19 @@ Public Class Listener
         Try
             While _wsClient.State = WebSocketState.Open
                 If _watchToken.IsCancellationRequested Then Return
-                Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {})
+                Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {}) 'TODO: Read longer messages
                 Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token)
                 If result.MessageType = WebSocketMessageType.Close Then
                     Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
                 Else
                     Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
-                    Dim obj As JsonObject = JsonNode.Parse(data)
-                    Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
-                    _trigger(n)
+                    If data = "yo" Then
+                        Await _wsClient.SendAsync(New ArraySegment(Of Byte)(Encoding.UTF8.GetBytes("dawg")), WebSocketMessageType.Text, True, token)
+                    Else
+                        Dim obj As JsonObject = JsonNode.Parse(data)
+                        Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
+                        _trigger(n)
+                    End If
                 End If
             End While
         Catch ex As OperationCanceledException

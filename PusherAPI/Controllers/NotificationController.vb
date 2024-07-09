@@ -16,10 +16,10 @@ Namespace Controllers
         End Sub
 
         <HttpPost("")>
-        Public Function Post(channel As String, [event] As String, key As String, <FromBody> data As Object) As ActionResult
-            If _service.Send(channel, [event], key, data) Then
+        Public Async Function Post(channel As String, [event] As String, key As String, <FromBody> data As Object) As Task(Of ActionResult)
+            If Await _service.Send(channel, [event], key, data) Then
                 Return Ok()
-            Else 
+            Else
                 Return Unauthorized()
             End If
         End Function
