@@ -5,16 +5,23 @@ Imports System.Threading
 
 #Disable Warning CA1001 'Can't do async disposable
 Public NotInheritable Class Listener
+    Public Const DefaultBufferSize As Integer = 1024
     Private ReadOnly _trigger As Action(Of Notification)
     Private ReadOnly _onStateChanged As Action(Of Boolean)
     Private ReadOnly _onError As Action(Of ReceiverError)
+    Private ReadOnly _bufferSize As Integer
     Dim _watchToken As CancellationTokenSource
     Dim _wsClient As ClientWebSocket
 
     Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification), onStateChanged As Action(Of Boolean), onError As Action(Of ReceiverError))
+        Me.New(uri, key, trigger, onStateChanged, onError, DefaultBufferSize)
+    End Sub
+    
+    Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification), onStateChanged As Action(Of Boolean), onError As Action(Of ReceiverError), bufferSize As Integer)
         _trigger = trigger
         _onStateChanged = onStateChanged
         _onError = onError
+        _bufferSize = bufferSize
         Me.Key = key
         Url = uri
     End Sub
@@ -59,7 +66,7 @@ Public NotInheritable Class Listener
                 Dim buffers As New List(Of Byte())
                 While True
 #Disable Warning CA1861'we need a fresh array so that old data from last time is not included
-                    Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {})
+                    Dim buffer As New ArraySegment(Of Byte)(New Byte(_bufferSize) {})
 #Enable Warning CA1861
                     Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token).FreeContext()
                     buffers.Add(buffer.Array.AsSpan().Slice(0, result.Count).ToArray())

@@ -5,10 +5,14 @@
 ''' </summary>
 Public NotInheritable Class Receiver
     Private ReadOnly _listener As Listener
-    Dim _channels As New List(Of Channel)
+    Private ReadOnly _channels As New List(Of Channel)
 
     Public Sub New(uri As Uri, key As String)
-        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e))
+        Me.New(uri, key, Listener.DefaultBufferSize)
+    End Sub
+    
+    Public Sub New(uri As Uri, key As String, bufferSize As Integer)
+        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e), bufferSize)
     End Sub
 
     ''' <summary>
