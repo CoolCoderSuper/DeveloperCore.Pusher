@@ -84,19 +84,23 @@ public class MainViewModel : INotifyPropertyChanged
         if (Connected)
         {
             await _listener?.DisconnectAsync(CancellationToken.None);
-            OnPropertyChanged(nameof(Connected));
-            OnPropertyChanged(nameof(ConnectText));
+            //OnConnectedStateChanged();
         }
         else
         {
             var builder = new UriBuilder("http", Host, Port);
             _sender = new Sender(builder.Uri, _key);
             builder.Scheme = "ws";
-            _listener = new Listener(builder.Uri, _key, (data) => Notifications.Insert(0, data));
+            _listener = new Listener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
             await _listener.ConnectAsync(CancellationToken.None);
-            OnPropertyChanged(nameof(Connected));
-            OnPropertyChanged(nameof(ConnectText));
+            //OnConnectedStateChanged();
         }
+    }
+
+    private void OnConnectedStateChanged()
+    {
+        OnPropertyChanged(nameof(Connected));
+        OnPropertyChanged(nameof(ConnectText));
     }
 
     public async void Send()

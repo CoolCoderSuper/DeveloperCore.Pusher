@@ -8,7 +8,7 @@ Public Class Receiver
     Dim _channels As New List(Of Channel)
 
     Public Sub New(uri As Uri, key As String)
-        _listener = New Listener(uri, key, AddressOf Trigger)
+        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b) , Sub(e) RaiseEvent [Error](e))
     End Sub
     
     ''' <summary>
@@ -97,4 +97,7 @@ Public Class Receiver
             ch.MessageReceived(n)
         Next
     End Sub
+    
+    Public Event StateChanged(state As Boolean)
+    Public Event [Error]([error] As ReceiverError)
 End Class

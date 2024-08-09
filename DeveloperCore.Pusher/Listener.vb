@@ -3,14 +3,17 @@ Imports System.Text
 Imports System.Text.Json.Nodes
 Imports System.Threading
 'TODO: Add auto reconnector
-'TODO: Provide events upon connnected, disconnected, and error
 Public Class Listener
     Private ReadOnly _trigger As Action(Of Notification)
+    Private ReadOnly _onStateChanged As Action(Of Boolean)
+    Private ReadOnly _onError As Action(Of ReceiverError)
     Dim _watchToken As CancellationTokenSource
     Dim _wsClient As ClientWebSocket
 
-    Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification))
+    Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification), onStateChanged As Action(Of Boolean), onError As Action(Of ReceiverError))
         _trigger = trigger
+        _onStateChanged = onStateChanged
+        _onError = onError
         Me.Key = key
         Url = uri
     End Sub
@@ -33,6 +36,7 @@ Public Class Listener
         Await _wsClient.ConnectAsync(uri.Uri, token)
         _watchToken = New CancellationTokenSource
         Watch(_watchToken.Token)
+        _onStateChanged(Connected)
     End Function
 
     Public Async Function DisconnectAsync(token As CancellationToken) As Task
@@ -43,6 +47,7 @@ Public Class Listener
             Else
                 Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
             End If
+            _onStateChanged(Connected)
         End If
     End Function
 
@@ -67,6 +72,8 @@ Public Class Listener
             End While
         Catch ex As OperationCanceledException
         Catch ex As WebSocketException
+            _onError(New ReceiverError(ex.Message, ex))
+            _onStateChanged(Connected)
         End Try
     End Sub
 End Class
