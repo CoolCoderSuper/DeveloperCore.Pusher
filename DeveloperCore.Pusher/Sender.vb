@@ -1,4 +1,3 @@
-Imports System.IO
 Imports System.Net.Http
 Imports System.Text
 Imports System.Text.Json
@@ -6,7 +5,7 @@ Imports System.Text.Json
 ''' <summary>
 ''' Sends a notification to the server.
 ''' </summary>
-Public Class Sender
+Public NotInheritable Class Sender
     Public Sub New(uri As Uri, key As String)
         Url = uri
         Me.Key = key
@@ -31,14 +30,13 @@ Public Class Sender
     ''' <param name="event">The event to trigger.</param>
     ''' <param name="data">Any additional data to send.</param>
     Public Async Function SendAsync(channel As String, [event] As String, data As Object) As Task
-        Using client As New HttpClient
-            Dim content As New StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
+        Using client As New HttpClient, content As New StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json")
             Dim builder As New UriBuilder(Url)
             builder.Path = "Notification"
             builder.Query = $"channel={channel}&event={[event]}&key={Key}"
-            Dim res = Await client.PostAsync(builder.Uri, content)
+            Dim res = Await client.PostAsync(builder.Uri, content).FreeContext()
             If res.StatusCode <> Net.HttpStatusCode.OK Then
-                Throw New Exception($"Failed to send notification: {res.StatusCode}")
+                Throw New HttpRequestException($"Failed to send notification: {res.StatusCode}")
             End If
         End Using
     End Function

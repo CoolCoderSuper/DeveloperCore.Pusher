@@ -1,7 +1,7 @@
 ﻿''' <summary>
 ''' A notification received from the server.
 ''' </summary>
-Public Class Notification
+Public NotInheritable Class Notification
     Public Sub New(channel As String, [event] As String, data As String, [date] As Date)
         Me.Channel = channel
         Me.Event = [event]

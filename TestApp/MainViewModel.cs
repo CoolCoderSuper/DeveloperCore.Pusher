@@ -11,24 +11,24 @@ using DeveloperCore.Pusher;
 
 namespace TestApp;
 
-public class MainViewModel : INotifyPropertyChanged
+public sealed class MainViewModel : INotifyPropertyChanged
 {
     private static readonly string _dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeveloperCore", "Pusher");
     private static readonly string _file = Path.Combine(_dir, "config.json");
     private Sender? _sender;
     private Listener? _listener;
-    private string _host;
+    private string? _host;
     private int _port;
-    private string _key;
-    private string _channelName;
-    private string _event;
-    private string _data;
+    private string? _key;
+    private string? _channelName;
+    private string? _event;
+    private string? _data;
     
     public MainViewModel()
     {
         if (!Directory.Exists(_dir))
             Directory.CreateDirectory(_dir);
-        var config = File.Exists(_file) ? JsonSerializer.Deserialize<Config>(File.ReadAllText(_file)) : new Config();
+        var config = File.Exists(_file) ? JsonSerializer.Deserialize<Config>(File.ReadAllText(_file))! : new Config();
         Host = config.Host;
         Port = config.Port;
         Key = config.Key;
@@ -39,7 +39,7 @@ public class MainViewModel : INotifyPropertyChanged
     
     public ObservableCollection<Notification> Notifications { get; set; } = [];
 
-    public string Host
+    public string? Host
     {
         get => _host;
         set => SetField(ref _host, value);
@@ -51,25 +51,25 @@ public class MainViewModel : INotifyPropertyChanged
         set => SetField(ref _port, value);
     }
 
-    public string Key
+    public string? Key
     {
         get => _key;
         set => SetField(ref _key, value);
     }
 
-    public string ChannelName
+    public string? ChannelName
     {
         get => _channelName;
         set => SetField(ref _channelName, value);
     }
     
-    public string Event
+    public string? Event
     {
         get => _event;
         set => SetField(ref _event, value);
     }
     
-    public string Data
+    public string? Data
     {
         get => _data;
         set => SetField(ref _data, value);
@@ -81,9 +81,9 @@ public class MainViewModel : INotifyPropertyChanged
     
     public async void Connect()
     {
-        if (Connected)
+        if (Connected && _listener != null)
         {
-            await _listener?.DisconnectAsync(CancellationToken.None);
+            await _listener.DisconnectAsync(CancellationToken.None);
             //OnConnectedStateChanged();
         }
         else
@@ -105,7 +105,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     public async void Send()
     {
-        await _sender.SendAsync(_channelName, _event, JsonSerializer.Deserialize<ExpandoObject>(_data));
+        if (_sender == null) return;
+        await _sender.SendAsync(_channelName, _event, JsonSerializer.Deserialize<ExpandoObject>(_data ?? ""));
     }
     
     public void Clear()
@@ -128,12 +129,12 @@ public class MainViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return;
         field = value;

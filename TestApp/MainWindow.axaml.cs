@@ -16,6 +16,6 @@ public partial class MainWindow : Window
     private void TopLevel_OnClosed(object? sender, EventArgs e)
     {
         var view = this.FindControl<MainView>("MainView");
-        view.Close();
+        view?.Close();
     }
 }

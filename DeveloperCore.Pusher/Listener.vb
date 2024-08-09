@@ -2,8 +2,9 @@
 Imports System.Text
 Imports System.Text.Json.Nodes
 Imports System.Threading
-'TODO: Add auto reconnector
-Public Class Listener
+
+#Disable Warning CA1001 'Can't do async disposable
+Public NotInheritable Class Listener
     Private ReadOnly _trigger As Action(Of Notification)
     Private ReadOnly _onStateChanged As Action(Of Boolean)
     Private ReadOnly _onError As Action(Of ReceiverError)
@@ -33,7 +34,7 @@ Public Class Listener
         Dim uri As New UriBuilder(Url)
         uri.Path = "ws"
         uri.Query = $"key={Key}"
-        Await _wsClient.ConnectAsync(uri.Uri, token)
+        Await _wsClient.ConnectAsync(uri.Uri, token).FreeContext()
         _watchToken = New CancellationTokenSource
         Watch(_watchToken.Token)
         _onStateChanged(Connected)
@@ -45,7 +46,7 @@ Public Class Listener
             If _wsClient.State = WebSocketState.Aborted Then
                 _wsClient.Abort()
             Else
-                Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
+                Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token).FreeContext()
             End If
             _onStateChanged(Connected)
         End If
@@ -55,14 +56,16 @@ Public Class Listener
         Try
             While _wsClient.State = WebSocketState.Open
                 If _watchToken.IsCancellationRequested Then Return
+#Disable Warning CA1861'we need a fresh array so that old data from last time is not included
                 Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {}) 'TODO: Read longer messages
-                Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token)
+#Enable Warning CA1861
+                Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token).FreeContext()
                 If result.MessageType = WebSocketMessageType.Close Then
-                    Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
+                    Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token).FreeContext()
                 Else
                     Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
                     If data = "yo" Then
-                        Await _wsClient.SendAsync(New ArraySegment(Of Byte)(Encoding.UTF8.GetBytes("dawg")), WebSocketMessageType.Text, True, token)
+                        Await _wsClient.SendAsync(New ArraySegment(Of Byte)(Encoding.UTF8.GetBytes("dawg")), WebSocketMessageType.Text, True, token).FreeContext()
                     Else
                         Dim obj As JsonObject = JsonNode.Parse(data)
                         Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
@@ -77,3 +80,4 @@ Public Class Listener
         End Try
     End Sub
 End Class
+#Enable Warning CA1001 'Can't do async disposable

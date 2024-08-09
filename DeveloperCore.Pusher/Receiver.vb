@@ -3,7 +3,7 @@
 ''' <summary>
 ''' Receives messages on multiple channels.
 ''' </summary>
-Public Class Receiver
+Public NotInheritable Class Receiver
     Private ReadOnly _listener As Listener
     Dim _channels As New List(Of Channel)
 
@@ -46,7 +46,7 @@ Public Class Receiver
     ''' </summary>
     ''' <returns></returns>
     Public Async Function ConnectAsync() As Task
-        Await ConnectAsync(CancellationToken.None)
+        Await ConnectAsync(CancellationToken.None).FreeContext()
     End Function
 
     ''' <summary>
@@ -54,14 +54,14 @@ Public Class Receiver
     ''' </summary>
     ''' <param name="token">The cancellation token.</param>
     Public Async Function ConnectAsync(token As CancellationToken) As Task
-        Await _listener.ConnectAsync(token)
+        Await _listener.ConnectAsync(token).FreeContext()
     End Function
 
     ''' <summary>
     ''' Disconnects from the server.
     ''' </summary>
     Public Async Function DisconnectAsync() As Task
-        Await DisconnectAsync(CancellationToken.None)
+        Await DisconnectAsync(CancellationToken.None).FreeContext()
     End Function
 
     ''' <summary>
@@ -69,7 +69,7 @@ Public Class Receiver
     ''' </summary>
     ''' <param name="token">The cancellation token.</param>
     Public Async Function DisconnectAsync(token As CancellationToken) As Task
-        Await _listener.DisconnectAsync(token)
+        Await _listener.DisconnectAsync(token).FreeContext()
     End Function
 
     ''' <summary>

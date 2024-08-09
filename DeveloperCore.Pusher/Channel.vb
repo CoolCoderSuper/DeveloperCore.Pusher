@@ -1,7 +1,7 @@
 ﻿''' <summary>
 ''' Represents a channel.
 ''' </summary>
-Public Class Channel
+Public NotInheritable Class Channel
     Dim _events As New List(Of [Event])
 
     Public Sub New(name As String)

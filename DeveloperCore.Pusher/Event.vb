@@ -1,4 +1,4 @@
-﻿Friend Class [Event]
+﻿Friend NotInheritable Class [Event]
     Public Sub New([event] As String, e As Action(Of Notification))
         Me.Event = [event]
         Action = e

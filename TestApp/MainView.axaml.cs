@@ -12,6 +12,6 @@ public partial class MainView : UserControl
 
     public void Close()
     {
-        ((MainViewModel)DataContext).Close();        
+        (DataContext as MainViewModel)?.Close();        
     }
 }
