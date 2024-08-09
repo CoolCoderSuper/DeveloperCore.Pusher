@@ -5,7 +5,6 @@ Imports System.Threading
 
 Public Class Listener
     Private ReadOnly _trigger As Action(Of Notification)
-    Dim _connected As Boolean = False
     Dim _watchToken As CancellationTokenSource
     Dim _wsClient As ClientWebSocket
 
@@ -20,13 +19,12 @@ Public Class Listener
 
     Public ReadOnly Property Connected As Boolean
         Get
-            Return _connected
+            Return _wsClient IsNot Nothing AndAlso _wsClient.State = WebSocketState.Open
         End Get
     End Property
     
     Public Async Function ConnectAsync(token As CancellationToken) As Task
         If Connected Then Return
-        _connected = True
         _wsClient = New ClientWebSocket
         Dim uri As New UriBuilder(Url)
         uri.Path = "ws"
@@ -44,7 +42,6 @@ Public Class Listener
             Else
                 Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token)
             End If
-            _connected = False
         End If
     End Function
     
