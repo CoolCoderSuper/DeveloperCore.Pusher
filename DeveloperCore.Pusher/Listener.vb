@@ -56,21 +56,27 @@ Public NotInheritable Class Listener
         Try
             While _wsClient.State = WebSocketState.Open
                 If _watchToken.IsCancellationRequested Then Return
+                Dim buffers As New List(Of Byte())
+                While True
 #Disable Warning CA1861'we need a fresh array so that old data from last time is not included
-                Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {}) 'TODO: Read longer messages
+                    Dim buffer As New ArraySegment(Of Byte)(New Byte(1024) {})
 #Enable Warning CA1861
-                Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token).FreeContext()
-                If result.MessageType = WebSocketMessageType.Close Then
-                    Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token).FreeContext()
-                Else
-                    Dim data As String = Encoding.UTF8.GetString(buffer.Array).Replace(vbNullChar, "")
-                    If data = "yo" Then
-                        Await _wsClient.SendAsync(New ArraySegment(Of Byte)(Encoding.UTF8.GetBytes("dawg")), WebSocketMessageType.Text, True, token).FreeContext()
-                    Else
-                        Dim obj As JsonObject = JsonNode.Parse(data)
-                        Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
-                        _trigger(n)
+                    Dim result As WebSocketReceiveResult = Await _wsClient.ReceiveAsync(buffer, token).FreeContext()
+                    buffers.Add(buffer.Array.AsSpan().Slice(0, result.Count).ToArray())
+                    If result.MessageType = WebSocketMessageType.Close Then
+                        Await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, Nothing, token).FreeContext()
+                        Return
+                    ElseIf result.EndOfMessage Then
+                        Exit While
                     End If
+                End While
+                Dim data As String = Encoding.UTF8.GetString(buffers.SelectMany(Function(x) x).ToArray())
+                If data = "yo" Then
+                    Await _wsClient.SendAsync(New ArraySegment(Of Byte)(Encoding.UTF8.GetBytes("dawg")), WebSocketMessageType.Text, True, token).FreeContext()
+                Else
+                    Dim obj As JsonObject = JsonNode.Parse(data)
+                    Dim n As New Notification(obj("Channel"), obj("Event"), obj("Data").ToJsonString, Date.Now)
+                    _trigger(n)
                 End If
             End While
         Catch ex As OperationCanceledException
