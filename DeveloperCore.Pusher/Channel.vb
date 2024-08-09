@@ -26,6 +26,9 @@ Public NotInheritable Class Channel
         _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
     End Sub
     
+    ''' <summary>
+    ''' Unbinds all events.
+    ''' </summary>
     Public Sub UnbindAll()
         _events.Clear()
     End Sub

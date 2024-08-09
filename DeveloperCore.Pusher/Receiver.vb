@@ -8,9 +8,9 @@ Public NotInheritable Class Receiver
     Dim _channels As New List(Of Channel)
 
     Public Sub New(uri As Uri, key As String)
-        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b) , Sub(e) RaiseEvent [Error](e))
+        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e))
     End Sub
-    
+
     ''' <summary>
     ''' Determines whether the client is connected to the server.
     ''' </summary>
@@ -20,7 +20,7 @@ Public NotInheritable Class Receiver
             Return _listener.Connected
         End Get
     End Property
-    
+
     ''' <summary>
     ''' The base URL of the server.
     ''' </summary>
@@ -30,7 +30,7 @@ Public NotInheritable Class Receiver
             Return _listener.Url
         End Get
     End Property
-    
+
     ''' <summary>
     ''' The key to use for authentication.
     ''' </summary>
@@ -82,7 +82,7 @@ Public NotInheritable Class Receiver
         _channels.Add(ch)
         Return ch
     End Function
-    
+
     ''' <summary>
     ''' Unsubscribes from a channel.
     ''' </summary>
@@ -91,13 +91,20 @@ Public NotInheritable Class Receiver
     Public Sub Unsubscribe(channel As Channel)
         _channels.Remove(channel)
     End Sub
-    
+
     Private Sub Trigger(n As Notification)
         For Each ch As Channel In _channels.Where(Function(x) x.Name = n.Channel)
             ch.MessageReceived(n)
         Next
     End Sub
-    
+
+    ''' <summary>
+    ''' Occurs when the state of the connection changes.
+    ''' </summary>
     Public Event StateChanged(state As Boolean)
+
+    ''' <summary>
+    ''' Occurs when an error occurs.
+    ''' </summary>
     Public Event [Error]([error] As ReceiverError)
 End Class

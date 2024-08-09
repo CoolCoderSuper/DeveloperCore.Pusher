@@ -27,5 +27,9 @@ Public NotInheritable Class Notification
     ''' <returns></returns>
     Public ReadOnly Property Data As String
     
+    ''' <summary>
+    ''' The date the notification was received.
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property [Date] As Date
 End Class
