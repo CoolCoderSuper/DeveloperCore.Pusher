@@ -15,7 +15,7 @@ Public Module Program
         app.UseAuthorization()
         app.MapControllers()
         app.UseWebSockets()
-        app.Map("/", Function() "yo were in")
+        app.MapGet("/", Function() "yo were in")
         app.Map("/ws", AddressOf NotificationService.SocketHandler)
 #If DEBUG Then
         app.Run("http://localhost:7166")
