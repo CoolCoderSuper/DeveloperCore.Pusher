@@ -16,7 +16,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private static readonly string _dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeveloperCore", "Pusher");
     private static readonly string _file = Path.Combine(_dir, "config.json");
     private Sender? _sender;
-    private Listener? _listener;
+    private IListener? _listener;
     private string? _host;
     private int _port;
     private string? _key;
@@ -90,8 +90,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             var builder = new UriBuilder("http", Host, Port);
             _sender = new Sender(builder.Uri, _key);
-            builder.Scheme = "ws";
-            _listener = new Listener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
+            //builder.Scheme = "ws";
+            //_listener = new WebSocketListener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
+            builder.Scheme = "http";
+            _listener = new SSEListener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged());
             await _listener.ConnectAsync(CancellationToken.None);
             //OnConnectedStateChanged();
         }

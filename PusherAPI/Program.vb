@@ -1,3 +1,4 @@
+Imports System.Threading
 Imports Microsoft.AspNetCore.Builder
 Imports Microsoft.Extensions.DependencyInjection
 Imports Scalar.AspNetCore
@@ -15,6 +16,9 @@ Public Module Program
         app.MapControllers()
         app.UseWebSockets()
         app.MapGet("/", Function() "yo were in")
+        app.MapGet("/sse/{key}", Function(cancellationToken As CancellationToken, key As String)
+                                     Return NotificationService.SseHandler(key, cancellationToken)
+                                 End Function)
         app.Map("/ws", AddressOf NotificationService.SocketHandler)
         app.MapOpenApi()
         app.MapScalarApiReference()

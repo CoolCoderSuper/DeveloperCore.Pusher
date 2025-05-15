@@ -16,13 +16,18 @@ Public Class NotificationService
     Public Async Function Send(channel As String, [event] As String, key As String, data As Object) As Task(Of Boolean)
         If key <> _config.Item("Key") Then Return False
         Dim notification As New Notification(channel, [event], data)
+        Dim str As String = JsonSerializer.Serialize(notification)
+        Dim dataBytes As Byte() = Encoding.UTF8.GetBytes(str)
         For Each client In _clients.ToArray()
-            Dim dataBytes As Byte() = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(notification))
             Await client.SendAsync(dataBytes, WebSocketMessageType.Text, True, CancellationToken.None)
+        Next
+        For Each callback In _sseCallbacks.ToArray()
+            callback(str)
         Next
         Return True
     End Function
 
+    Private Shared ReadOnly _sseCallbacks As New List(Of Action(Of String))()
     Private Shared ReadOnly _clients As New List(Of WebSocket)
 
     Public Shared Property Key As String
@@ -65,4 +70,63 @@ Public Class NotificationService
             Await Task.Delay(5000)
         End While
     End Function
+
+    Public Shared Function SseHandler(key As String, token As CancellationToken) As IResult
+        If key = NotificationService.Key Then
+            Return TypedResults.ServerSentEvents(New EventStreamEnumerable(token))
+        Else
+            Return TypedResults.Unauthorized()
+        End If
+    End Function
+
+    Public Class EventStreamEnumerable
+        Implements IAsyncEnumerable(Of String)
+
+        Private ReadOnly _token As CancellationToken
+
+        Public Sub New(token As CancellationToken)
+            _token = token
+        End Sub
+
+        Public Function GetAsyncEnumerator(Optional cancellationToken As CancellationToken = Nothing) As IAsyncEnumerator(Of String) Implements IAsyncEnumerable(Of String).GetAsyncEnumerator
+            Return New EventStreamEnumerator(_token)
+        End Function
+    End Class
+
+    Public Class EventStreamEnumerator
+        Implements IAsyncEnumerator(Of String)
+
+        Private ReadOnly _token As CancellationToken
+        Private _value As String
+        Private _triggered As Boolean
+
+        Public Sub New(token As CancellationToken)
+            _token = token
+            _sseCallbacks.Add(Sub(value)
+                                  _value = value
+                                  _triggered = True
+                              End Sub)
+        End Sub
+
+        Public ReadOnly Property Current As String Implements IAsyncEnumerator(Of String).Current
+            Get
+                Return _value
+            End Get
+        End Property
+
+        Public Function MoveNextAsync() As ValueTask(Of Boolean) Implements IAsyncEnumerator(Of String).MoveNextAsync
+            If _token.IsCancellationRequested Then
+                Return ValueTask.FromResult(False)
+            End If
+            Return New ValueTask(Of Boolean)(Task.Run(Function()
+                                                          While Not _triggered AndAlso Not _token.IsCancellationRequested
+                                                          End While
+                                                          _triggered = False
+                                                          Return True
+                                                      End Function))
+        End Function
+
+        Public Function DisposeAsync() As ValueTask Implements IAsyncDisposable.DisposeAsync
+        End Function
+    End Class
 End Class

@@ -3,20 +3,21 @@ Imports System.Text
 Imports System.Text.Json.Nodes
 Imports System.Threading
 
-#Disable Warning CA1001 'Can't do async disposable
-Public NotInheritable Class Listener
+Public NotInheritable Class WebSocketListener
+    Implements IListener
+
     Public Const DefaultBufferSize As Integer = 1024
     Private ReadOnly _trigger As Action(Of Notification)
     Private ReadOnly _onStateChanged As Action(Of Boolean)
     Private ReadOnly _onError As Action(Of ReceiverError)
     Private ReadOnly _bufferSize As Integer
-    Dim _watchToken As CancellationTokenSource
-    Dim _wsClient As ClientWebSocket
+    Private _watchToken As CancellationTokenSource
+    Private _wsClient As ClientWebSocket
 
     Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification), onStateChanged As Action(Of Boolean), onError As Action(Of ReceiverError))
         Me.New(uri, key, trigger, onStateChanged, onError, DefaultBufferSize)
     End Sub
-    
+
     Public Sub New(uri As Uri, key As String, trigger As Action(Of Notification), onStateChanged As Action(Of Boolean), onError As Action(Of ReceiverError), bufferSize As Integer)
         _trigger = trigger
         _onStateChanged = onStateChanged
@@ -26,16 +27,16 @@ Public NotInheritable Class Listener
         Url = uri
     End Sub
 
-    Public ReadOnly Property Url As Uri
-    Public ReadOnly Property Key As String
+    Public ReadOnly Property Url As Uri Implements IListener.Url
+    Public ReadOnly Property Key As String Implements IListener.Key
 
-    Public ReadOnly Property Connected As Boolean
+    Public ReadOnly Property Connected As Boolean Implements IListener.Connected
         Get
             Return _wsClient IsNot Nothing AndAlso _wsClient.State = WebSocketState.Open
         End Get
     End Property
 
-    Public Async Function ConnectAsync(token As CancellationToken) As Task
+    Public Async Function ConnectAsync(token As CancellationToken) As Task Implements IListener.ConnectAsync
         If Connected Then Return
         _wsClient = New ClientWebSocket
         Dim uri As New UriBuilder(Url)
@@ -47,7 +48,7 @@ Public NotInheritable Class Listener
         _onStateChanged(Connected)
     End Function
 
-    Public Async Function DisconnectAsync(token As CancellationToken) As Task
+    Public Async Function DisconnectAsync(token As CancellationToken) As Task Implements IListener.DisconnectAsync
         If Connected Then
             _watchToken.Cancel()
             If _wsClient.State = WebSocketState.Aborted Then
@@ -93,4 +94,3 @@ Public NotInheritable Class Listener
         End Try
     End Sub
 End Class
-#Enable Warning CA1001 'Can't do async disposable

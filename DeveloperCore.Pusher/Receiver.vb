@@ -4,15 +4,16 @@
 ''' Receives messages on multiple channels.
 ''' </summary>
 Public NotInheritable Class Receiver
-    Private ReadOnly _listener As Listener
+    Private ReadOnly _listener As IListener
     Private ReadOnly _channels As New List(Of Channel)
 
-    Public Sub New(uri As Uri, key As String)
-        Me.New(uri, key, Listener.DefaultBufferSize)
-    End Sub
-    
-    Public Sub New(uri As Uri, key As String, bufferSize As Integer)
-        _listener = New Listener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e), bufferSize)
+    Public Sub New(uri As Uri, key As String, options As RecieverProtocolOptions)
+        If options Is Nothing Then Throw New ArgumentNullException(NameOf(uri))
+        If options.Protocol = RecieverProtocol.WebSocket Then
+            _listener = New WebSocketListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e), options.BufferSize)
+        ElseIf options.Protocol = RecieverProtocol.SSE Then
+            _listener = New SSEListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b))
+        End If
     End Sub
 
     ''' <summary>
@@ -112,3 +113,13 @@ Public NotInheritable Class Receiver
     ''' </summary>
     Public Event [Error]([error] As ReceiverError)
 End Class
+
+Public Class RecieverProtocolOptions
+    Public Property Protocol As RecieverProtocol
+    Public Property BufferSize As Integer = WebSocketListener.DefaultBufferSize
+End Class
+
+Public Enum RecieverProtocol
+    WebSocket
+    SSE
+End Enum
