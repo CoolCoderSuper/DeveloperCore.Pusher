@@ -1,6 +1,7 @@
 ﻿Imports System.Threading
 
 Public Interface IListener
+    Inherits IDisposable
     ReadOnly Property Connected As Boolean
     ReadOnly Property Key As String
     ReadOnly Property Url As Uri

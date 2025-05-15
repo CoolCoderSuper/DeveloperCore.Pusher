@@ -3,7 +3,7 @@ Imports System.Net.Http
 Imports System.Text.Json.Nodes
 Imports System.Threading
 
-Public Class SSEListener
+Public NotInheritable Class SSEListener
     Implements IListener
 
     Private ReadOnly _trigger As Action(Of Notification)
@@ -71,5 +71,10 @@ Public Class SSEListener
             End Using
         Catch ex As OperationCanceledException
         End Try
+    End Sub
+
+    Public Sub Dispose() Implements IDisposable.Dispose
+        _watchToken?.Dispose()
+        _client?.Dispose()
     End Sub
 End Class

@@ -103,9 +103,9 @@ Public Class NotificationService
         Public Sub New(token As CancellationToken)
             _token = token
             _sseCallbacks.Add(Sub(value)
-                                  _value = value
-                                  _triggered = True
-                              End Sub)
+                _value = value
+                _triggered = True
+            End Sub)
         End Sub
 
         Public ReadOnly Property Current As String Implements IAsyncEnumerator(Of String).Current
@@ -119,11 +119,11 @@ Public Class NotificationService
                 Return ValueTask.FromResult(False)
             End If
             Return New ValueTask(Of Boolean)(Task.Run(Function()
-                                                          While Not _triggered AndAlso Not _token.IsCancellationRequested
-                                                          End While
-                                                          _triggered = False
-                                                          Return True
-                                                      End Function))
+                While Not _triggered AndAlso Not _token.IsCancellationRequested
+                End While
+                _triggered = False
+                Return True
+            End Function))
         End Function
 
         Public Function DisposeAsync() As ValueTask Implements IAsyncDisposable.DisposeAsync

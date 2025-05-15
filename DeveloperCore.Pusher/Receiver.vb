@@ -4,6 +4,7 @@
 ''' Receives messages on multiple channels.
 ''' </summary>
 Public NotInheritable Class Receiver
+    Implements IDisposable
     Private ReadOnly _listener As IListener
     Private ReadOnly _channels As New List(Of Channel)
 
@@ -112,6 +113,10 @@ Public NotInheritable Class Receiver
     ''' Occurs when an error occurs.
     ''' </summary>
     Public Event [Error]([error] As ReceiverError)
+
+    Public Sub Dispose() Implements IDisposable.Dispose
+        _listener.Dispose()
+    End Sub
 End Class
 
 Public Class RecieverProtocolOptions

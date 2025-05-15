@@ -93,4 +93,9 @@ Public NotInheritable Class WebSocketListener
             _onStateChanged(Connected)
         End Try
     End Sub
+
+    Public Sub Dispose() Implements IDisposable.Dispose
+        _watchToken?.Dispose()
+        _wsClient?.Dispose()
+    End Sub
 End Class
