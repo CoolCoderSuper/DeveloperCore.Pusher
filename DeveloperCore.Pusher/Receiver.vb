@@ -8,11 +8,11 @@ Public NotInheritable Class Receiver
     Private ReadOnly _listener As IListener
     Private ReadOnly _channels As New List(Of Channel)
 
-    Public Sub New(uri As Uri, key As String, options As RecieverProtocolOptions)
+    Public Sub New(uri As Uri, key As String, options As ReceiverProtocolOptions)
         If options Is Nothing Then Throw New ArgumentNullException(NameOf(uri))
-        If options.Protocol = RecieverProtocol.WebSocket Then
+        If options.Protocol = ReceiverProtocol.WebSocket Then
             _listener = New WebSocketListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e), options.BufferSize)
-        ElseIf options.Protocol = RecieverProtocol.SSE Then
+        ElseIf options.Protocol = ReceiverProtocol.SSE Then
             _listener = New SSEListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b))
         End If
     End Sub
@@ -119,12 +119,12 @@ Public NotInheritable Class Receiver
     End Sub
 End Class
 
-Public Class RecieverProtocolOptions
-    Public Property Protocol As RecieverProtocol
+Public NotInheritable Class ReceiverProtocolOptions
+    Public Property Protocol As ReceiverProtocol
     Public Property BufferSize As Integer = WebSocketListener.DefaultBufferSize
 End Class
 
-Public Enum RecieverProtocol
+Public Enum ReceiverProtocol
     WebSocket
     SSE
 End Enum
