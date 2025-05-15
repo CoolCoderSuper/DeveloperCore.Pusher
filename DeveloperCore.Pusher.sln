@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{734B3BC4-0923-4CAA-BF3B-BD091AAA6EBD}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "StressTest", "StressTest\StressTest.fsproj", "{D99BE9F8-CA1C-47D4-B613-27B3B0BFD128}"
