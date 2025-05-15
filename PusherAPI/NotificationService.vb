@@ -102,6 +102,8 @@ Public Class NotificationService
 
         Public Sub New(token As CancellationToken)
             _token = token
+            _value = "connected"
+            _triggered = True
             _sseCallbacks.Add(Sub(value)
                 _value = value
                 _triggered = True

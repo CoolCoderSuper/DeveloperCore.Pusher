@@ -13,7 +13,7 @@ Public NotInheritable Class Receiver
         If options.Protocol = ReceiverProtocol.WebSocket Then
             _listener = New WebSocketListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e), options.BufferSize)
         ElseIf options.Protocol = ReceiverProtocol.SSE Then
-            _listener = New SSEListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b))
+            _listener = New SSEListener(uri, key, AddressOf Trigger, Sub(b) RaiseEvent StateChanged(b), Sub(e) RaiseEvent [Error](e))
         End If
     End Sub
 

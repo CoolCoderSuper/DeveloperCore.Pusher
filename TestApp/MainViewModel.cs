@@ -87,7 +87,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             //builder.Scheme = "ws";
             //_listener = new WebSocketListener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
             builder.Scheme = "http";
-            _listener = new SSEListener(builder.Uri, Key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged());
+            _listener = new SSEListener(builder.Uri, Key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
             await _listener.ConnectAsync(CancellationToken.None);
             //OnConnectedStateChanged();
         }

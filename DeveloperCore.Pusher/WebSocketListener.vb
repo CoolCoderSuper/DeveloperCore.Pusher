@@ -88,7 +88,9 @@ Public NotInheritable Class WebSocketListener
                 End If
             End While
         Catch ex As OperationCanceledException
-        Catch ex As WebSocketException
+#Disable Warning CA1031'we want to catch all exceptions
+        Catch ex As Exception
+#Enable Warning CA1031
             _onError(New ReceiverError(ex.Message, ex))
             _onStateChanged(Connected)
         End Try
