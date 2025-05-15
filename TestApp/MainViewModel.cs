@@ -17,13 +17,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private static readonly string _file = Path.Combine(_dir, "config.json");
     private Sender? _sender;
     private IListener? _listener;
-    private string? _host;
-    private int _port;
-    private string? _key;
-    private string? _channelName;
-    private string? _event;
-    private string? _data;
-    
+
     public MainViewModel()
     {
         if (!Directory.Exists(_dir))
@@ -41,38 +35,38 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public string? Host
     {
-        get => _host;
-        set => SetField(ref _host, value);
+        get;
+        set => SetField(ref field, value);
     }
     
     public int Port
     {
-        get => _port;
-        set => SetField(ref _port, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public string? Key
     {
-        get => _key;
-        set => SetField(ref _key, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public string? ChannelName
     {
-        get => _channelName;
-        set => SetField(ref _channelName, value);
+        get;
+        set => SetField(ref field, value);
     }
     
     public string? Event
     {
-        get => _event;
-        set => SetField(ref _event, value);
+        get;
+        set => SetField(ref field, value);
     }
     
     public string? Data
     {
-        get => _data;
-        set => SetField(ref _data, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public string ConnectText => _listener is { Connected: true } ? "Disconnect" : "Connect";
@@ -89,11 +83,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
         else
         {
             var builder = new UriBuilder("http", Host, Port);
-            _sender = new Sender(builder.Uri, _key);
+            _sender = new Sender(builder.Uri, Key);
             //builder.Scheme = "ws";
             //_listener = new WebSocketListener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged(), e => throw e.Exception);
             builder.Scheme = "http";
-            _listener = new SSEListener(builder.Uri, _key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged());
+            _listener = new SSEListener(builder.Uri, Key, data => Notifications.Insert(0, data), _ => OnConnectedStateChanged());
             await _listener.ConnectAsync(CancellationToken.None);
             //OnConnectedStateChanged();
         }
@@ -108,7 +102,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public async void Send()
     {
         if (_sender == null) return;
-        await _sender.SendAsync(_channelName, _event, JsonSerializer.Deserialize<ExpandoObject>(_data ?? ""));
+        await _sender.SendAsync(ChannelName, Event, JsonSerializer.Deserialize<ExpandoObject>(Data ?? ""));
     }
     
     public void Clear()
@@ -141,10 +135,5 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (EqualityComparer<T>.Default.Equals(field, value)) return;
         field = value;
         OnPropertyChanged(propertyName);
-    }
-
-    public void Test()
-    {
-        
     }
 }
