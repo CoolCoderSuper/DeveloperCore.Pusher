@@ -115,6 +115,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         var config = new Config
         {
             Host = Host,
+            Port = Port,
             Key = Key,
             ChannelName = ChannelName,
             Event = Event,
