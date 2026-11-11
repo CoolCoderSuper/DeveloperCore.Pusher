@@ -2,12 +2,20 @@
 
   <PropertyGroup>
     <RootNamespace>PusherAPI</RootNamespace>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
+    <!-- No JS assets; SDK 11 hot-reload JS module from this project breaks Debug builds of referencing web apps. -->
+    <JSModulesEnabled>false</JSModulesEnabled>
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-		<PackageReference Include="Scalar.AspNetCore" Version="1.2.37" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.20.0" />
 	</ItemGroup>
+
+  <!-- PusherAPI is also consumed by TrackForge.Api. Its host-specific settings
+       must not be included when that parent application is published. -->
+  <ItemGroup Condition="'$(ExcludeAppSettingsFromPublish)' == 'true'">
+    <Content Update="appsettings*.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
 
 </Project>

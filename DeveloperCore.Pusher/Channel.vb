@@ -2,7 +2,8 @@
 ''' Represents a channel.
 ''' </summary>
 Public NotInheritable Class Channel
-    Dim _events As New List(Of [Event])
+    Private ReadOnly _events As New List(Of [Event])
+    Private ReadOnly _eventLock As New Object()
 
     Public Sub New(name As String)
         Me.Name = name
@@ -14,7 +15,9 @@ Public NotInheritable Class Channel
     ''' <param name="event">The event name.</param>
     ''' <param name="e">The action to perform.</param>
     Public Sub Bind([event] As String, e As Action(Of Notification))
-        _events.Add(New [Event]([event], e))
+        SyncLock _eventLock
+            _events.Add(New [Event]([event], e))
+        End SyncLock
     End Sub
 
     ''' <summary>
@@ -23,18 +26,29 @@ Public NotInheritable Class Channel
     ''' <param name="event">The event name.</param>
     ''' <param name="e">The action to perform.</param>
     Public Sub Unbind([event] As String, e As Action(Of Notification))
-        _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
+        SyncLock _eventLock
+            _events.RemoveAll(Function(x) x.Event = [event] AndAlso x.Action = e)
+        End SyncLock
     End Sub
     
     ''' <summary>
     ''' Unbinds all events.
     ''' </summary>
     Public Sub UnbindAll()
-        _events.Clear()
+        SyncLock _eventLock
+            _events.Clear()
+        End SyncLock
     End Sub
     
     Friend Sub MessageReceived(n As Notification)
-        _events.ForEach(Sub(x) If x.Event = n.Event Then x.Action.Invoke(n))
+        Dim handlers As [Event]()
+        SyncLock _eventLock
+            handlers = _events.Where(Function(x) x.Event = n.Event).ToArray()
+        End SyncLock
+        'Invoke outside the lock so callbacks can change subscriptions without blocking dispatch.
+        For Each handler In handlers
+            handler.Action.Invoke(n)
+        Next
     End Sub
 
     ''' <summary>
