@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
-		<PackageReference Include="Scalar.AspNetCore" Version="2.18.7" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.20.0" />
 	</ItemGroup>
 
   <!-- PusherAPI is also consumed by TrackForge.Api. Its host-specific settings
