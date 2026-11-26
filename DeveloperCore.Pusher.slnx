@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/dotnet.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="DeveloperCore.Pusher/DeveloperCore.Pusher.vbproj" />
+  <Project Path="PusherAPI/PusherAPI.vbproj" />
+  <Project Path="TestApp/TestApp.csproj" />
+</Solution>
